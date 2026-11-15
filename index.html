@@ -721,7 +721,7 @@ const TKEY_C={"Énergie":"Fatigue et énergie","Concentration":"Fatigue et éner
 Object.assign(TOPICS,TOPICS_A,TOPICS_B,TOPICS_C);Object.assign(TKEY,TKEY_A,TKEY_B,TKEY_C,{"Décalage horaire":"Insomnie"});
 function topic(k){const T=TOPICS[k],M2=d=>(T.match.b||[]).some(x=>d.b.includes(x))||(T.match.m||[]).some(x=>d.m.includes(x))||(T.match.e||[]).some(x=>d.e.includes(x)),rank=d=>{const i=T.order.indexOf(d.n);return i<0?99:i};
 const L2=D.filter(d=>M2(d)&&(!tf||d.t===tf)).sort((a,b)=>rank(a)-rank(b)||(b.v||0)-(a.v||0)||a.n.localeCompare(b.n,"fr")),pl=L2.filter(d=>d.t==="Plante"),su=L2.filter(d=>d.t!=="Plante"&&d.t!=="Huile essentielle"),ar=L2.filter(d=>d.t==="Huile essentielle"),cs=d=>card(d,T.notes[d.n]||""),bad=L2.filter(d=>al(d).length);
-const sec=(t,b,o=1,c="")=>`<details class="sec ${c}" ${o?"open":""}><summary>${t}</summary><div class="sb">${b}</div></details>`,ul=a=>"<ul>"+a.map(x=>`<li>${x}</li>`).join("")+"</ul>";
+const sec=(t,b,o=0,c="")=>`<details class="sec ${c}" ${o?"open":""}><summary>${t}</summary><div class="sb">${b}</div></details>`,ul=a=>"<ul>"+a.map(x=>`<li>${x}</li>`).join("")+"</ul>";
 return `<div class="card topic"><div class="row"><div class="ico">${T.i}</div><div><h3>${T.t}</h3><div class="sub">Informations générales, pas un diagnostic.</div></div></div><div style="margin-top:8px;font-size:14px;line-height:1.45">${T.intro}</div></div>`
 +sec("🧠 Systèmes du corps impliqués",T.sys.map(s=>`<div class="sy"><span>${s[0]}</span><div><b>${s[1]}</b><div class="sub">${s[2]}</div></div></div>`).join(""))
 +sec("🔎 Causes et facteurs possibles",ul(T.causes.map(c=>`<b>${c[0]}.</b> ${c[1]}`)))
@@ -731,7 +731,7 @@ return `<div class="card topic"><div class="row"><div class="ico">${T.i}</div><d
 +(ar.length?sec(`🌸 Aromathérapie (${ar.length})`,'<div class="sub" style="margin-bottom:8px">Huiles essentielles traditionnellement associées à ce sujet. Toujours diluées, avec les précautions de chaque fiche.</div>'+ar.map(cs).join("")):"")
 +sec(`💊 Minéraux et suppléments (${su.length})`,su.map(cs).join("")||'<div class="sub">Aucun.</div>')
 +sec("⚠️ Précautions et interactions",ul(T.cautions)+(H.length?`<div class="alert">Avec ton profil : ${bad.length} fiche(s) de cette page demandent de la prudence (bandeaux rouges).</div>`:'<div class="sub">Renseigne ton <a href="#" onclick="go(\'prof\');return false">profil de santé</a> pour des alertes personnalisées.</div>'))
-+sec("🩺 Quand consulter",ul(T.red),1,"warn")
++sec("🩺 Quand consulter",ul(T.red),0,"warn")
 +sec("📚 Sources",ul(T.src.map(s=>`<a href="${s[1]}" target="_blank" rel="noopener">${s[0]}</a>`))+'<div class="sub">Consultées le 14 novembre 2026. Le classement des plantes et suppléments reste indicatif.</div>',0)}
 function goF(n,t){setT(t);$("#q").value=n;lib();go("lib")}
 function goEntry(k,n){kind=k;tf="";tfr();sel=n;seg();chips();sym();go("sym")}
