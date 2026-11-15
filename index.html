@@ -588,7 +588,7 @@ if(!key()){r.innerHTML='<div class="prec">Ajoute d’abord ta clé Pl@ntNet dans
 r.innerHTML='<div class="sub">Identification en cours…</div>';
 try{const fd=new FormData();for(const f of idFiles){fd.append("images",await shrink(f),"photo.jpg");fd.append("organs",$("#idOrgan").value)}
 const res=await fetch("https://my-api.plantnet.org/v2/identify/all?lang=fr&nb-results=3&include-related-images=true&api-key="+encodeURIComponent(key()),{method:"POST",body:fd});
-if(!res.ok){r.innerHTML='<div class="prec">'+({401:"Clé non valide.",403:"Clé non valide.",404:"Aucune plante reconnue sur ces photos.",429:"Limite d’identifications atteinte pour aujourd’hui."}[res.status]||"Erreur "+res.status)+"</div>";return}
+if(!res.ok){r.innerHTML='<div class="prec">'+({401:"Clé non valide.",403:"Clé non valide.",404:"Aucune plante reconnue sur ces photos.",429:"Limite d’identifications atteinte pour aujourd’hui."}[res.status]||"Erreur "+res.status)+(res.status===401||res.status===403?'<div class="sub" style="margin-top:8px">Code '+res.status+'. Clé enregistrée : '+key().length+' caractères, commence par « '+esc(key().slice(0,4))+' », finit par « '+esc(key().slice(-3))+' ». Adresse de l’appli à autoriser dans Pl@ntNet : <b>'+esc(location.origin)+'</b></div>':"")+"</div>";return}
 const j=await res.json();IDR=(j.results||[]).slice(0,3);
 r.innerHTML=(IDR.map(idCard).join("")||'<div class="prec">Aucun résultat.</div>')+'<div class="prec"><b style="margin-top:0">Prudence</b>Une identification automatique peut se tromper. Ne consomme jamais une plante sur cette seule base.</div>'
 }catch(e){r.innerHTML='<div class="prec">Pas de connexion, ou service indisponible. Réessaie avec du réseau.</div>'}}
