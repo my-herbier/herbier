@@ -183,12 +183,16 @@ input[type=checkbox]{width:auto;margin:0 10px 0 0;padding:0}.swl{display:flex;al
 
 <div id="v-id" class="view">
   <div class="card"><b>📷 Identifier une plante</b>
-  <div class="sub" style="margin:4px 0 10px">Prends une photo ou choisis-en jusqu’à 5. Pl@ntNet propose les espèces les plus probables.</div>
-  <select id="idOrgan"><option value="auto">Partie photographiée : automatique</option><option value="leaf">Feuille</option><option value="flower">Fleur</option><option value="fruit">Fruit</option><option value="bark">Écorce</option><option value="habit">Plante entière</option></select>
-  <input type="file" id="idFile" accept="image/*" multiple>
-  <div id="idPrev"></div>
-  <button class="btn" style="width:100%" onclick="ident()">Identifier</button></div>
-  <div id="idRes"></div>
+  <div class="sub" style="margin:4px 0 10px">Google Lens reconnaît la plante sur ta photo. Ensuite, retrouve-la ici.</div>
+  <ol style="margin:0 0 10px 18px;padding:0;font-size:14px;line-height:1.5"><li>Touche le bouton ci-dessous et prends ou choisis une photo dans Lens.</li><li>Note le nom proposé (ex. Moringa).</li><li>Reviens ici et tape-le pour trouver ou créer la fiche.</li></ol>
+  <a class="btn" style="display:block;text-align:center;text-decoration:none" href="https://lens.google.com/" target="_blank" rel="noopener">📷 Ouvrir Google Lens</a>
+  <div class="sub" style="margin-top:8px">Astuce : dans l’appli Google ou Google Photos, l’icône Lens fait la même chose.</div></div>
+  <div class="card"><b>🔎 Nom trouvé</b>
+  <input id="lensName" placeholder="Nom de la plante (ex. Moringa)">
+  <button class="btn" style="width:100%;margin-bottom:8px" onclick="navigator.clipboard.readText().then(x=>{$('#lensName').value=(x||'').trim().slice(0,80);$('#lensMsg').textContent=x?'':'Le presse-papiers est vide.'}).catch(()=>{$('#lensMsg').textContent='Collage refusé : appuie longuement dans le champ et choisis Coller.'})">📋 Coller le nom copié</button>
+  <div class="sub" id="lensMsg" style="margin-bottom:8px"></div>
+  <div class="two"><button class="btn" onclick="const n=$('#lensName').value.trim();if(n)goF(n,'')">Chercher dans mes fiches</button><button class="btn" style="background:var(--deep)" onclick="const n=$('#lensName').value.trim();resetF();$('#fN').value=n;$('#fT').value='Plante';go('lib');$('#fForm').style.display='block'">+ Créer une fiche</button></div></div>
+  <div style="display:none"><select id="idOrgan"><option value="auto">auto</option></select><input type="file" id="idFile"><div id="idPrev"></div><div id="idRes"></div></div>
 </div>
 
 <div id="v-prof" class="view">
@@ -200,7 +204,7 @@ input[type=checkbox]{width:auto;margin:0 10px 0 0;padding:0}.swl{display:flex;al
 </div>
 
 <div id="v-set" class="view">
-  <div class="card"><b>🔑 Clé Pl@ntNet</b>
+  <div class="card" style="display:none"><b>🔑 Clé Pl@ntNet</b>
   <div class="sub" style="margin:4px 0 8px">Colle ta clé une fois. Elle reste sur cet appareil et n’est jamais publiée avec l’app.</div>
   <input id="kIn" type="password" autocomplete="off" placeholder="Ta clé API Pl@ntNet">
   <div class="two"><button class="btn" onclick="setKey()">Enregistrer</button><button class="btn" style="background:#a0463a" onclick="delKey()">Effacer</button></div>
@@ -569,7 +573,7 @@ function tiles(){return[
 
 function home(){const T=tiles();$("#tiles").innerHTML=T.map((t,i)=>`<button class="tile" onclick="tiles()[${i}][5]()"><div class="ti" id="ti${i}" style="background-color:${t[3]}">${t[4]}</div><div class="tb"><div class="tt">${t[0]}</div><div class="ts">${t[1]}</div><span class="tc">${t[6]}</span><span class="go">→</span></div></button>`).join("");
 T.forEach((t,i)=>{const e=$("#ti"+i);if(e&&TI[i]){e.style.backgroundImage='url("'+TI[i]+'")';e.textContent=""}});
-$("#wide").innerHTML=`<button class="wc" style="grid-column:1/-1" onclick="setT('Huile essentielle');go('lib')"><div class="wi">🌸</div><div><div class="tt">Aromathérapie</div><div class="ts">${D.filter(d=>d.t==="Huile essentielle").length} huiles essentielles, liées aux symptômes et aux plantes</div></div></button><button class="wc" onclick="go('jour')"><div class="wi" id="w0">📓</div><div><div class="tt">Mon jardin</div><div class="ts">Mes plantes, mes notes et mon suivi</div></div></button><button class="wc" onclick="go('id')"><div class="wi" id="w1">📷</div><div><div class="tt">Identifier une plante</div><div class="ts">Prendre une photo</div></div></button><button class="wc" onclick="go('fav')"><div class="wi">♡</div><div><div class="tt">Mes favoris</div><div class="ts">Mes fiches enregistrées</div></div></button><button class="wc" onclick="go('rem')"><div class="wi">♨</div><div><div class="tt">Préparations</div><div class="ts">Méthodes et précautions</div></div></button><button class="wc" style="grid-column:1/-1" onclick="go('prof')"><div class="wi">🛡️</div><div><div class="tt">Mon profil de santé</div><div class="ts">${H.length?H.length+" critère(s) actif(s) : alertes sur les fiches":"Grossesse, médicaments… alertes sur les fiches"}</div></div></button>`;
+$("#wide").innerHTML=`<button class="wc" style="grid-column:1/-1" onclick="setT('Huile essentielle');go('lib')"><div class="wi">🌸</div><div><div class="tt">Aromathérapie</div><div class="ts">${D.filter(d=>d.t==="Huile essentielle").length} huiles essentielles, liées aux symptômes et aux plantes</div></div></button><button class="wc" onclick="go('jour')"><div class="wi" id="w0">📓</div><div><div class="tt">Mon jardin</div><div class="ts">Mes plantes, mes notes et mon suivi</div></div></button><button class="wc" onclick="go('id')"><div class="wi" id="w1">📷</div><div><div class="tt">Identifier une plante</div><div class="ts">Avec Google Lens</div></div></button><button class="wc" onclick="go('fav')"><div class="wi">♡</div><div><div class="tt">Mes favoris</div><div class="ts">Mes fiches enregistrées</div></div></button><button class="wc" onclick="go('rem')"><div class="wi">♨</div><div><div class="tt">Préparations</div><div class="ts">Méthodes et précautions</div></div></button><button class="wc" style="grid-column:1/-1" onclick="go('prof')"><div class="wi">🛡️</div><div><div class="tt">Mon profil de santé</div><div class="ts">${H.length?H.length+" critère(s) actif(s) : alertes sur les fiches":"Grossesse, médicaments… alertes sur les fiches"}</div></div></button>`;
 wimg("Hibiscus",u=>{const h=$("#heroImg");h.src=u;h.style.display=""})}
 $("#hq").onkeydown=e=>{if(e.key==="Enter"){setT("");$("#q").value=e.target.value;lib();go("lib");e.target.blur()}};
 function key(){try{return localStorage.getItem("hk")||""}catch(e){return""}}
