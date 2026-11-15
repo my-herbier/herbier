@@ -205,7 +205,8 @@ input[type=checkbox]{width:auto;margin:0 10px 0 0;padding:0}.swl{display:flex;al
   <div class="two"><button class="btn" onclick="setKey()">Enregistrer</button><button class="btn" style="background:#a0463a" onclick="delKey()">Effacer</button></div>
   <div class="sub" id="kMsg" style="margin-top:8px"></div></div>
   <div class="card"><b>📖 Dictionnaire de J. Martel</b><div class="sub" style="margin:4px 0 8px">Affiche le dictionnaire dans Mieux-être. Il faut ton propre exemplaire du livre en PDF (2e édition, 2007), qui reste sur cet appareil et n’est jamais publié ni sauvegardé avec l’app.</div>
-  <label class="swl"><input type="checkbox" id="dSw" onchange="toggleDict(this.checked)">J’ai le livre de J. Martel</label></div>
+  <label class="swl"><input type="checkbox" id="dSw" onchange="toggleDict(this.checked)">J’ai le livre de J. Martel</label>
+  <button class="btn" id="dGo" style="width:100%;margin-top:10px;display:none" onclick="openDict()">📖 Ouvrir le dictionnaire et choisir mon PDF ›</button></div>
   <div class="card"><b>Sauvegarde</b><div class="sub" style="margin:4px 0 10px">Tes fiches, tes modifications et ton journal, dans un seul fichier.</div>
   <div class="two"><button class="btn" onclick="expo()">⬇️ Sauvegarder</button><button class="btn" onclick="document.getElementById('xFile').click()">⬆️ Restaurer</button></div>
   <input type="file" id="xFile" accept=".json,application/json" hidden>
@@ -533,7 +534,7 @@ async function idbDel(k){const d=await idb();return new Promise((ok,ko)=>{const 
 async function dLibText(n){let t=await idbGet("lib:"+n);if(!t){const r=await fetch(DB.cdn+n);if(!r.ok)throw new Error("net");t=await r.text();await idbSet("lib:"+n,t)}return t}
 async function dPdfjs(){if(window.pdfjsLib)return window.pdfjsLib;let a,w;try{[a,w]=await Promise.all([dLibText("pdf.min.js"),dLibText("pdf.worker.min.js")])}catch(e){throw new Error("Connexion nécessaire une première fois pour installer le lecteur.")}await new Promise((ok,ko)=>{const s=document.createElement("script");s.src=URL.createObjectURL(new Blob([a],{type:"text/javascript"}));s.onload=ok;s.onerror=()=>ko(new Error("Lecteur impossible à charger."));document.head.appendChild(s)});window.pdfjsLib.GlobalWorkerOptions.workerSrc=URL.createObjectURL(new Blob([w],{type:"text/javascript"}));return window.pdfjsLib}
 async function dBook(){if(bdoc)return bdoc;const buf=await idbGet("pdf");if(!buf)return null;const lib=await dPdfjs();bdoc=await lib.getDocument({data:new Uint8Array(buf)}).promise;return bdoc}
-function applyDict(){const on=lsg("hmd")==="1";const c=$("#dCard"),w=$("#dSw");if(c)c.classList.toggle("off",!on);if(w)w.checked=on}
+function applyDict(){const on=lsg("hmd")==="1";const c=$("#dCard"),w=$("#dSw");if(c)c.classList.toggle("off",!on);if(w)w.checked=on;const g=$("#dGo");if(g)g.style.display=on?"":"none"}
 function toggleDict(on){lss("hmd",on?"1":"0");applyDict()}
 async function openDict(){go("dict");let h=false;try{h=!!(await idbGet("pdf"))}catch(e){$("#dMsg").textContent=e.message}$("#dImp").style.display=h?"none":"";$("#dIdx").style.display=h?"":"none";if(h)dRender()}
 const dN=s=>(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
