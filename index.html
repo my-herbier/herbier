@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Herbier</title>
+<title>Herbarium</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="color-scheme" content="light">
 <meta name="theme-color" content="#4f7a3a">
@@ -83,7 +83,7 @@ input,textarea,select{width:100%;padding:10px;border:1px solid var(--line);borde
 </style>
 </head>
 <body>
-<div class="top"><h1>🌿 Herbier</h1><button class="gear" onclick="go('set')" aria-label="Réglages">⚙️</button></div>
+<div class="top"><h1>🌿 Herbarium</h1><button class="gear" onclick="go('set')" aria-label="Réglages">⚙️</button></div>
 
 <div id="v-home" class="view on">
   <div class="hero"><img id="heroImg" alt="" onerror="this.style.display='none'"><h2>Explorez, apprenez, prenez soin naturellement.</h2><p>Plantes · Minéraux · Suppléments · Bien-être</p></div>
@@ -410,7 +410,7 @@ function editF(i){const d=D[i];eid=i;const v=(k,x)=>$("#"+k).value=un(x||"");con
 function saveO(){try{localStorage.setItem("ho",JSON.stringify(O))}catch(x){}}
 function upd(d){const t0=D[eid];const keep={id:t0.id,c:t0.c,o:t0.o};Object.assign(t0,d,keep);if(t0.c)save();else{const s={...t0};delete s.id;delete s.c;delete s.o;delete s._z;O[t0.o]=s;saveO()}eid=null}
 function san(c){return{id:Number(c.id)||Date.now(),c:1,n:S(c.n),i:S(c.i),t:["Plante","Minéral","Supplément"].includes(c.t)?c.t:"Plante",b:(c.b||[]).map(S),m:(c.m||[]).map(S),e:(c.e||[]).map(S),tr:S(c.tr),u:S(c.u),p:S(c.p),x:S(c.x)}}
-function expo(){const s=JSON.stringify({C,O,J,H,N:NT}),m=$("#xMsg");try{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([s],{type:"application/json"}));a.download="herbier-sauvegarde-"+new Date().toISOString().slice(0,10)+".json";document.body.appendChild(a);a.click();a.remove();m.textContent="Sauvegarde téléchargée."}catch(e){try{navigator.clipboard.writeText(s);m.textContent="Copié dans le presse-papiers."}catch(x){m.textContent="Échec de la sauvegarde."}}}
+function expo(){const s=JSON.stringify({C,O,J,H,N:NT}),m=$("#xMsg");try{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([s],{type:"application/json"}));a.download="Herbarium-sauvegarde-"+new Date().toISOString().slice(0,10)+".json";document.body.appendChild(a);a.click();a.remove();m.textContent="Sauvegarde téléchargée."}catch(e){try{navigator.clipboard.writeText(s);m.textContent="Copié dans le presse-papiers."}catch(x){m.textContent="Échec de la sauvegarde."}}}
 function impo(t){const m=$("#xMsg");try{const o=JSON.parse(t);(o.C||[]).forEach(c=>{const s=san(c);if(!C.some(x=>x.id===s.id)){C.push(s);D.push(s)}});Object.entries(o.O||{}).forEach(([k,v])=>{if(k==="__proto__")return;const s=san(v);delete s.id;delete s.c;O[String(k)]=s});D.forEach(d=>{if(!d.c&&O[d.o])Object.assign(d,O[d.o])});(o.J||[]).forEach(j=>{const s={d:S(j.d),i:S(j.i),e:S(j.e),n:S(j.n)};if(!J.some(x=>x.d===s.d&&x.i===s.i&&x.e===s.e&&x.n===s.n))J.push(s)});if(o.N&&typeof o.N==="object")Object.entries(o.N).forEach(([k,v])=>{if(k!=="__proto__"&&typeof v==="string")NT[String(k)]=v});saveN();if(Array.isArray(o.H)){H=[...new Set([...H,...o.H.filter(x=>WL[x])])];saveH()}save();saveO();try{localStorage.setItem("hj",JSON.stringify(J))}catch(x){}jsel();chips();sym();lib();jr();prof();m.textContent="Restauré."}catch(e){m.textContent="Fichier non valide."}}
 function delF(id){delete NT["c"+id];saveN();C=C.filter(d=>d.id!==id);const k=D.findIndex(d=>d.id===id);if(k>-1)D.splice(k,1);save();sel=null;jsel();chips();sym();lib()}
 let J=[];try{J=JSON.parse(localStorage.getItem("hj")||"[]")}catch(e){}

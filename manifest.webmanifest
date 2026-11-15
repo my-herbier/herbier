@@ -1,6 +1,6 @@
 {
-  "name": "Herbier",
-  "short_name": "Herbier",
+  "name": "Herbarium",
+  "short_name": "Herbarium",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
