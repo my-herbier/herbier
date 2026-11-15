@@ -45,10 +45,10 @@ select{font-size:15px;text-overflow:ellipsis}
 .hero h2{font-family:Georgia,"Times New Roman",serif;font-size:21px;line-height:1.2;margin:0 0 8px;max-width:68%;color:var(--deep)}
 .hero p{margin:0;font-style:italic;color:var(--deep);font-size:13px;max-width:66%;line-height:1.35}
 .hero img{position:absolute;right:0;top:0;bottom:0;width:38%;height:100%;object-fit:cover;-webkit-mask-image:linear-gradient(to right,transparent,#000 45%);mask-image:linear-gradient(to right,transparent,#000 45%)}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.tile{border:1px solid var(--line);background:var(--card);border-radius:16px;overflow:hidden;padding:0;text-align:left;color:var(--ink);display:flex;flex-direction:column;font:inherit}
-.ti{height:80px;background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;font-size:34px}
-.tb{padding:8px 8px 34px;position:relative;flex:1}
+.grid{display:grid;grid-template-columns:1fr;gap:10px}
+.tile{border:1px solid var(--line);background:var(--card);border-radius:16px;overflow:hidden;padding:0;text-align:left;color:var(--ink);display:flex;flex-direction:row;align-items:stretch;font:inherit}
+.ti{width:104px;min-height:104px;flex:none;background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;font-size:34px}
+.tb{padding:12px 44px 34px 12px;position:relative;flex:1}
 .tt{font-family:Georgia,"Times New Roman",serif;font-weight:700;font-size:15px;color:var(--deep)}
 .ts{font-size:11px;color:var(--mut);line-height:1.25;margin-top:2px}
 .tc{position:absolute;left:8px;bottom:9px;font-size:11px;color:var(--acc);font-weight:600}
@@ -76,6 +76,7 @@ a{color:var(--acc);font-weight:600}
 .tnote{font-size:12.5px;color:var(--mut);margin-top:8px;line-height:1.35;font-style:italic}
 .card.topic{background:var(--acc2)}
 .nb{margin:4px 0 0;font-size:14px}
+.idx{display:flex;align-items:center;width:100%;text-align:left;border:1px solid var(--line);background:var(--card);border-radius:12px;padding:10px 12px;margin-bottom:8px;font:inherit;color:var(--ink)}.idx .n{font-weight:600;font-size:15px}.idx>span{color:var(--mut);font-size:22px}
 .view{display:none}.view.on{display:block}
 input,textarea,select{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);font:inherit;margin-bottom:8px}
 .btn{background:var(--acc);color:#fff;border:0;border-radius:10px;padding:10px 14px;font-size:15px}
@@ -86,22 +87,27 @@ input,textarea,select{width:100%;padding:10px;border:1px solid var(--line);borde
 
 <div id="v-home" class="view on">
   <div class="hero"><img id="heroImg" alt="" onerror="this.style.display='none'"><h2>Explorez, apprenez, prenez soin naturellement.</h2><p>Plantes · Minéraux · Suppléments · Bien-être</p></div>
-  <div class="hs"><input id="hq" type="search" enterkeyhint="search" placeholder="🔍 Rechercher une plante, un minéral…"></div>
+  <div class="hs"><input id="hq" type="search" enterkeyhint="search" placeholder="🔍 Rechercher : plante, symptôme, émotion…"></div>
   <div class="grid" id="tiles"></div>
   <div class="wide" id="wide"></div>
   <div class="info">Une approche naturelle et éclairée, en harmonie avec la nature. Savoirs traditionnels, pas un avis médical.</div>
 </div>
 
 <div id="v-sym" class="view">
+  <input id="sq" type="search" placeholder="Rechercher : stress, mal de dos, tristesse…">
   <div class="seg" id="seg"></div>
-  <div class="stack"><select id="entry"></select><select id="tf"></select></div>
-  <div class="sub" style="margin:2px 0 8px"><a href="#" onclick="go('prof');return false">🛡️ Mon profil de santé</a> : alertes sur les fiches</div>
-  <div id="symList"></div>
+  <div id="symIdx"></div>
+  <div id="symRes" style="display:none">
+    <button class="btn" style="background:var(--acc2);color:var(--deep);margin-bottom:10px" onclick="pick('')">← Retour à la liste</button>
+    <select id="tf"></select>
+    <div id="symList"></div>
+  </div>
+  <div class="sub" style="margin:10px 0 8px"><a href="#" onclick="go('prof');return false">🛡️ Mon profil de santé</a> : alertes sur les fiches</div>
 </div>
 
 <div id="v-lib" class="view">
-  <select id="tf2"></select>
   <input id="q" placeholder="Rechercher : plante, nom latin, symptôme…">
+  <div class="chips" id="tfc"></div>
   <button class="btn" onclick="resetF();const f=document.getElementById('fForm');f.style.display=f.style.display==='block'?'none':'block'">+ Ajouter une fiche</button>
   <div id="fForm" style="display:none;margin:10px 0">
     <input id="fN" placeholder="Nom (ex. Camomille)">
@@ -163,8 +169,8 @@ input,textarea,select{width:100%;padding:10px;border:1px solid var(--line);borde
 
 <nav>
   <button class="on" data-v="home"><span>🏠</span>Accueil</button>
-  <button data-v="lib"><span>📖</span>Plantes</button>
-  <button data-v="sym"><span>🩺</span>Santé</button>
+  <button data-v="lib"><span>📖</span>Ingrédients</button>
+  <button data-v="sym"><span>🩺</span>Mieux-être</button>
   <button data-v="id"><span>📷</span>Identifier</button>
   <button data-v="jour"><span>📓</span>Carnet</button>
 </nav>
@@ -374,23 +380,23 @@ const al=d=>(d.w||[]).filter(x=>H.includes(x));
 function srcs(d){const L1='target="_blank" rel="noopener" onclick="event.stopPropagation()"';return `<a href="https://pubmed.ncbi.nlm.nih.gov/?term=${encodeURIComponent((d.l||d.n)+" clinical trial")}" ${L1}>PubMed</a>`+(ODS[d.n]?` · <a href="https://ods.od.nih.gov/factsheets/${ODS[d.n]}-HealthProfessional/" ${L1}>NIH (fiche professionnelle)</a>`:"")}
 D.forEach(d=>{if(!d.c){d.o=d.n;d._z=JSON.stringify(d)}});
 D.forEach(d=>{if(!d.c&&O[d.o])Object.assign(d,O[d.o])});
-let sel=null,kind="b",tf="";
-const K={b:"Symptômes",m:"Maladies",e:"Émotions"};
-const L=k=>[...new Set(D.flatMap(d=>d[k]))].sort((a,b)=>a.localeCompare(b,"fr"));
+let sel=null,kind="a",tf="";
+const K={a:"Tout",b:"Symptômes",m:"Maladies",e:"Émotions"};
+const L=k=>[...new Set(k==="a"?D.flatMap(d=>[...d.b,...d.m,...d.e]):D.flatMap(d=>d[k]))].sort((a,b)=>a.localeCompare(b,"fr"));
 function seg(){$("#seg").innerHTML=Object.keys(K).map(k=>`<button class="${kind===k?'on':''}" onclick="setK('${k}')">${K[k]}</button>`).join("")}
 function setK(k){kind=k;sel=null;seg();chips();sym()}
 const TF=[["","Tout"],["Plante","🌿 Plantes"],["Minéral","🧂 Minéraux"],["Supplément","💊 Suppléments"]];
-function tfr(){const h=TF.map(([v,l])=>`<option value="${v}" ${tf===v?'selected':''}>${l}</option>`).join("");$("#tf").innerHTML=h;$("#tf2").innerHTML=h}
+function tfr(){const h=TF.map(([v,l])=>`<option value="${v}" ${tf===v?'selected':''}>${l}</option>`).join("");$("#tf").innerHTML=h;tfc()}
+function tfc(){const c=$("#tfc");if(!c)return;c.innerHTML=TF.map(([v,l])=>`<button class="chip ${tf===v?"on":""}" onclick="setT('${v}')">${l.replace(/^\S+\s/,"")} ${v?D.filter(d=>d.t===v).length:D.length}</button>`).join("")}
 function setT(v){tf=v;tfr();sym();lib()}
 const $=s=>document.querySelector(s);
-function chips(){const ph={b:"Choisir un symptôme",m:"Choisir une maladie",e:"Choisir une émotion"}[kind];$("#entry").innerHTML=`<option value="">${ph}</option>`+L(kind).map(b=>`<option value="${esc(b)}" ${sel===b?'selected':''}>${TKEY[b]?"📖 ":""}${b}</option>`).join("")}
+function chips(){const q=nz(($("#sq").value||"").trim()),S=Object.fromEntries(["b","m","e"].map(k=>[k,new Set(D.flatMap(d=>d[k]))])),LB={b:"Symptôme",m:"Maladie",e:"Émotion"},names=L(kind).filter(n=>!q||nz(n).includes(q));$("#symIdx").innerHTML=names.length?names.map(n=>`<button class="idx" data-n="${esc(n)}" onclick="pick(this.dataset.n)"><div style="flex:1"><div class="n">${TKEY[n]?"📖 ":""}${n}</div>${["b","m","e"].filter(k=>S[k].has(n)).map(k=>`<span class="tag">${LB[k]}</span>`).join("")}</div><span>›</span></button>`).join(""):'<div class="sub">Aucun résultat.</div>'}
 function pick(b){sel=b||null;sym()}
-function sym(){if(!sel&&$("#entry"))$("#entry").value="";const l=sel?D.filter(d=>d[kind].includes(sel)&&(!tf||d.t===tf)).sort((a,b)=>(b.v||0)-(a.v||0)||a.n.localeCompare(b.n,"fr")):[];const nt=sel?'<div class="sub" style="margin-bottom:8px">'+(kind==="m"?"Pistes traditionnelles associées, pas un diagnostic. ":"")+"Classées par niveau de preuve (●●● = le mieux documenté).</div>":"";$("#symList").innerHTML=sel?(TKEY[sel]?topic(TKEY[sel]):nt+l.map(d=>card(d)).join("")):'<div class="sub">Choisis une entrée dans la liste pour voir les pistes.</div>'}
-function lib(){const q=nz($("#q").value.trim()),nm=d=>nz(d.n+" "+(d.l||"")).includes(q);$("#libList").innerHTML=D.filter(d=>(!tf||d.t===tf)&&(!q||nm(d)||nz([d.u,...d.b,...d.m,...d.e,nt(d)].join(" ")).includes(q))).sort((a,b)=>(q?nm(b)-nm(a):0)||a.n.localeCompare(b.n,"fr")).map(d=>card(d)).join("")}
+function sym(){const has=!!sel;["#sq","#seg","#symIdx"].forEach(x=>$(x).style.display=has?"none":"");$("#symRes").style.display=has?"":"none";if(!has){$("#symList").innerHTML="";return}const inK=d=>kind==="a"?(d.b.includes(sel)||d.m.includes(sel)||d.e.includes(sel)):d[kind].includes(sel);const l=D.filter(d=>inK(d)&&(!tf||d.t===tf)).sort((a,b)=>(b.v||0)-(a.v||0)||a.n.localeCompare(b.n,"fr"));const isM=kind==="m"||(kind==="a"&&D.some(d=>d.m.includes(sel)));const nt='<div class="tt" style="font-size:20px;margin-bottom:6px">'+sel+'</div><div class="sub" style="margin-bottom:8px">'+(isM?"Pistes traditionnelles associées, pas un diagnostic. ":"")+"Classées par niveau de preuve (●●● = le mieux documenté).</div>";$("#symList").innerHTML=TKEY[sel]?topic(TKEY[sel]):nt+l.map(d=>card(d)).join("")}
+function lib(){tfc();const q=nz($("#q").value.trim()),nm=d=>nz(d.n+" "+(d.l||"")).includes(q);$("#libList").innerHTML=D.filter(d=>(!tf||d.t===tf)&&(!q||nm(d)||nz([d.u,...d.b,...d.m,...d.e,nt(d)].join(" ")).includes(q))).sort((a,b)=>(q?nm(b)-nm(a):0)||a.n.localeCompare(b.n,"fr")).map(d=>card(d)).join("")}
 $("#q").oninput=lib;
-$("#entry").onchange=e=>pick(e.target.value);
+$("#sq").oninput=chips;
 $("#tf").onchange=e=>setT(e.target.value);
-$("#tf2").onchange=e=>setT(e.target.value);
 function jsel(){if(window.__r)home();$("#jItem").innerHTML=[...D].sort((a,b)=>a.n.localeCompare(b.n,"fr")).map(d=>`<option>${d.n}</option>`).join("")}
 jsel();
 const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -410,6 +416,7 @@ function delF(id){delete NT["c"+id];saveN();C=C.filter(d=>d.id!==id);const k=D.f
 let J=[];try{J=JSON.parse(localStorage.getItem("hj")||"[]")}catch(e){}
 function addJ(){const e=$("#jEff").value.trim(),n=$("#jNote").value.trim();if(!e&&!n)return;J.unshift({d:new Date().toLocaleDateString("fr-FR"),i:$("#jItem").value,e,n});try{localStorage.setItem("hj",JSON.stringify(J))}catch(x){}$("#jEff").value=$("#jNote").value="";jr()}
 function jr(){$("#jList").innerHTML=J.map(x=>`<div class="card"><b>${x.i}</b> <span class="sub">${x.d}</span><div>${x.e}</div><div class="sub">${x.n}</div></div>`).join("")||'<div class="sub">Rien encore. Ton expérience est le cœur de l’app.</div>'}
+function askC(i){const d=D[i];if(!d)return;const t="Parle-moi de « "+un(d.n)+" »"+(d.l?" ("+un(d.l)+")":"")+" ("+d.t.toLowerCase()+") : usages traditionnels, ce que disent les études, précautions et interactions possibles. Réponds en français, simplement.";try{navigator.clipboard&&navigator.clipboard.writeText(t)}catch(e){}window.open("https://claude.ai/new?q="+encodeURIComponent(t),"_blank")}
 function go(v){document.querySelectorAll("nav button,.view").forEach(x=>x.classList.remove("on"));$("#v-"+v).classList.add("on");const b=document.querySelector('nav button[data-v="'+v+'"]');if(b)b.classList.add("on");window.scrollTo(0,0)}
 document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>go(b.dataset.v));
 $("#xFile").onchange=e=>{const f=e.target.files[0];if(!f)return;const R=new FileReader();R.onload=()=>impo(R.result);R.readAsText(f);e.target.value=""};
@@ -418,12 +425,8 @@ const HI=(()=>{try{return JSON.parse(localStorage.getItem("hi")||"{}")}catch(e){
 function wimg(t,cb){if(HI[t])return cb(HI[t]);try{fetch("https://fr.wikipedia.org/api/rest_v1/page/summary/"+encodeURIComponent(t)).then(r=>r.ok?r.json():Promise.reject()).then(j=>{const u=(j.thumbnail&&j.thumbnail.source)||"";if(u){HI[t]=u;try{localStorage.setItem("hi",JSON.stringify(HI))}catch(x){}cb(u)}}).catch(()=>{})}catch(e){}}
 const cnt=t=>D.filter(d=>d.t===t).length+" fiches";
 function tiles(){return[
-["Plantes","Fiches et usages des plantes","Hibiscus","#dcebd2","🌿",()=>{setT("Plante");go("lib")},cnt("Plante")],
-["Minéraux","Rôle, sources et bienfaits","Améthyste","#e5dcf0","💎",()=>{setT("Minéral");go("lib")},cnt("Minéral")],
-["Suppléments","Vitamines et compléments naturels","Gélule","#f6e8b8","💊",()=>{setT("Supplément");go("lib")},cnt("Supplément")],
-["Symptômes","Solutions naturelles par symptôme","Appareil digestif","#d7e6f2","🩺",()=>{setK("b");go("sym")},L("b").length+" entrées"],
-["Maladies","Comprendre et accompagner","Cœur","#f2d9d4","❤️",()=>{setK("m");go("sym")},L("m").length+" entrées"],
-["Émotions","Sérénité, équilibre et bien-être","Plumeria","#e8efe0","🌸",()=>{setK("e");go("sym")},L("e").length+" entrées"]]}
+["Ingrédients naturels","Plantes · Minéraux · Suppléments","Hibiscus","#dcebd2","🌿",()=>{setT("");go("lib")},D.length+" fiches"],
+["Mieux-être","Symptômes · Maladies · Émotions","Plumeria","#e8efe0","🌸",()=>{setK("a");go("sym")},L("a").length+" entrées"]]}
 function home(){const T=tiles();$("#tiles").innerHTML=T.map((t,i)=>`<button class="tile" onclick="tiles()[${i}][5]()"><div class="ti" id="ti${i}" style="background-color:${t[3]}">${t[4]}</div><div class="tb"><div class="tt">${t[0]}</div><div class="ts">${t[1]}</div><span class="tc">${t[6]}</span><span class="go">→</span></div></button>`).join("");
 T.forEach((t,i)=>wimg(t[2],u=>{const e=$("#ti"+i);if(e){e.style.backgroundImage='url("'+u+'")';e.textContent=""}}));
 $("#wide").innerHTML=`<button class="wc" onclick="go('jour')"><div class="wi" id="w0">🌱</div><div><div class="tt">Mon jardin</div><div class="ts">Mes plantes, mes notes</div></div></button><button class="wc" onclick="go('id')"><div class="wi" id="w1">📷</div><div><div class="tt">Identifier</div><div class="ts">Photo d’une plante</div></div></button><button class="wc" style="grid-column:1/-1" onclick="go('prof')"><div class="wi">🛡️</div><div><div class="tt">Mon profil de santé</div><div class="ts">${H.length?H.length+" critère(s) actif(s) : alertes sur les fiches":"Grossesse, médicaments… alertes sur les fiches"}</div></div></button>`;
@@ -459,7 +462,7 @@ function setNote(k,v){NT[k]=v;saveN()}
 function revO(i){const d=D[i];if(d.c||!O[d.o])return;const z=d._z;delete O[d.o];saveO();Object.keys(d).forEach(k=>delete d[k]);Object.assign(d,JSON.parse(z));d._z=z;jsel();chips();sym();lib();prof()}
 const lk=(k,a)=>a.map(x=>`<a href="#" onclick="event.stopPropagation();goEntry('${k}','${x.replace(/'/g,"\\'")}');return false">${x}</a>`).join(", ");
 const lkc=(k,a)=>a.map(x=>`<a class="lkc" href="#" onclick="goEntry('${k}','${x.replace(/'/g,"\\'")}');return false">${x}</a>`).join("");
-function card(d,note){const a=al(d),dots=d.v?"●".repeat(d.v)+"○".repeat(3-d.v):"";return `<div class="card" onclick="this.classList.toggle('open')"><div class="row"><div class="ico">${d.i}</div><div><h3>${d.n} <span class="evd" title="Niveau de preuve">${dots}</span>${nt(d)?" 📝":""}</h3><span class="tag">${d.t}</span>${d.b.map(x=>`<span class="tag">${x}</span>`).join("")}</div></div>${a.length?`<div class="alert">⚠️ À vérifier pour toi : ${a.map(x=>WL[x]).join(", ")}</div>`:""}${typeof note==="string"&&note?`<div class="tnote">${note}</div>`:""}<div class="det"><b>Tradition</b>${d.tr}${d.l?`<b>Nom latin</b><i>${d.l}</i>`:""}${d.pr?`<b>Propriétés</b>${d.pr}`:""}${d.co?`<b>Constituants</b>${d.co}`:""}${d.sy?`<b>Systèmes influencés</b>${d.sy}`:""}<b>Usage</b>${d.u}${d.b.length?`<b>Symptômes</b>${lk("b",d.b)}`:""}${d.m.length?`<b>Maladies associées</b>${lk("m",d.m)}`:""}${d.e.length?`<b>Émotions</b>${lk("e",d.e)}`:""}${d.p?`<div class="prec"><b style="margin-top:0">Précautions</b>${d.p}</div>`:""}${d.v?`<b>Niveau de preuve</b>${dots} ${EVL[d.v]} <span class="sub">(classement indicatif)</span>`:""}${d.c?"":`<b>Sources à consulter</b>${srcs(d)}`}<b>📝 Mes notes</b><textarea class="nb" rows="3" data-k="${esc(nk(d))}" placeholder="Tes notes personnelles sur cette fiche…" onclick="event.stopPropagation()" oninput="setNote(this.dataset.k,this.value)">${esc(nt(d))}</textarea><div class="two" style="margin-top:10px"><button class="btn" onclick="event.stopPropagation();editF(${D.indexOf(d)})">✏️ Modifier</button>${d.c?`<button class="btn" style="background:#a0463a" onclick="event.stopPropagation();if(this.dataset.s)delF(${d.id});else{this.dataset.s=1;this.textContent='Confirmer ?'}">Supprimer</button>`:(O[d.o]?`<button class="btn" style="background:#8a7a4a" onclick="event.stopPropagation();if(this.dataset.s)revO(${D.indexOf(d)});else{this.dataset.s=1;this.textContent='Confirmer ?'}">↩️ Original</button>`:"")}</div></div></div>`}
+function card(d,note){const a=al(d),dots=d.v?"●".repeat(d.v)+"○".repeat(3-d.v):"";return `<div class="card" onclick="this.classList.toggle('open')"><div class="row"><div class="ico">${d.i}</div><div><h3>${d.n} <span class="evd" title="Niveau de preuve">${dots}</span>${nt(d)?" 📝":""}</h3><span class="tag">${d.t}</span>${d.b.map(x=>`<span class="tag">${x}</span>`).join("")}</div></div>${a.length?`<div class="alert">⚠️ À vérifier pour toi : ${a.map(x=>WL[x]).join(", ")}</div>`:""}${typeof note==="string"&&note?`<div class="tnote">${note}</div>`:""}<div class="det"><b>Tradition</b>${d.tr}${d.l?`<b>Nom latin</b><i>${d.l}</i>`:""}${d.pr?`<b>Propriétés</b>${d.pr}`:""}${d.co?`<b>Constituants</b>${d.co}`:""}${d.sy?`<b>Systèmes influencés</b>${d.sy}`:""}<b>Usage</b>${d.u}${d.b.length?`<b>Symptômes</b>${lk("b",d.b)}`:""}${d.m.length?`<b>Maladies associées</b>${lk("m",d.m)}`:""}${d.e.length?`<b>Émotions</b>${lk("e",d.e)}`:""}${d.p?`<div class="prec"><b style="margin-top:0">Précautions</b>${d.p}</div>`:""}${d.v?`<b>Niveau de preuve</b>${dots} ${EVL[d.v]} <span class="sub">(classement indicatif)</span>`:""}${d.c?"":`<b>Sources à consulter</b>${srcs(d)}`}<b>📝 Mes notes</b><textarea class="nb" rows="3" data-k="${esc(nk(d))}" placeholder="Tes notes personnelles sur cette fiche…" onclick="event.stopPropagation()" oninput="setNote(this.dataset.k,this.value)">${esc(nt(d))}</textarea><div class="two" style="margin-top:10px"><button class="btn" onclick="event.stopPropagation();editF(${D.indexOf(d)})">✏️ Modifier</button><button class="btn" style="background:var(--deep)" onclick="event.stopPropagation();askC(${D.indexOf(d)})">✨ Ask Claude</button>${d.c?`<button class="btn" style="background:#a0463a;grid-column:1/-1" onclick="event.stopPropagation();if(this.dataset.s)delF(${d.id});else{this.dataset.s=1;this.textContent='Confirmer ?'}">Supprimer</button>`:(O[d.o]?`<button class="btn" style="background:#8a7a4a;grid-column:1/-1" onclick="event.stopPropagation();if(this.dataset.s)revO(${D.indexOf(d)});else{this.dataset.s=1;this.textContent='Confirmer ?'}">↩️ Original</button>`:"")}</div></div></div>`}
 const TKEY={"Insomnie":"Insomnie","Sommeil":"Insomnie"};
 const TOPICS={"Insomnie":{i:"🌙",t:"Insomnie",match:{b:["Sommeil"],m:["Insomnie"]},
 intro:"Difficulté à s’endormir, réveils pendant la nuit ou réveil trop tôt, avec fatigue, irritabilité ou baisse de concentration le jour. On parle d’insomnie chronique quand cela dure depuis plusieurs semaines à plusieurs mois.",
