@@ -184,9 +184,10 @@ input[type=checkbox]{width:auto;margin:0 10px 0 0;padding:0}.swl{display:flex;al
 <div id="v-id" class="view">
   <div class="card"><b>📷 Identifier une plante</b>
   <div class="sub" style="margin:4px 0 10px">Google Lens reconnaît la plante sur ta photo. Ensuite, retrouve-la ici.</div>
-  <ol style="margin:0 0 10px 18px;padding:0;font-size:14px;line-height:1.5"><li>Touche le bouton ci-dessous et prends ou choisis une photo dans Lens.</li><li>Note le nom proposé (ex. Moringa).</li><li>Reviens ici et tape-le pour trouver ou créer la fiche.</li></ol>
-  <a class="btn" style="display:block;text-align:center;text-decoration:none" href="https://lens.google.com/" target="_blank" rel="noopener">📷 Ouvrir Google Lens</a>
-  <div class="sub" style="margin-top:8px">Astuce : dans l’appli Google ou Google Photos, l’icône Lens fait la même chose.</div></div>
+  <ol style="margin:0 0 10px 18px;padding:0;font-size:14px;line-height:1.5"><li>Ouvre l’appli Google, touche l’icône Lens (appareil photo) dans la barre de recherche, puis prends ou choisis une photo.</li><li>Note le nom proposé (ex. Moringa).</li><li>Reviens ici et tape-le pour trouver ou créer la fiche.</li></ol>
+  <a class="btn" style="display:block;text-align:center;text-decoration:none" href="intent://#Intent;package=com.google.android.googlequicksearchbox;S.browser_fallback_url=https%3A%2F%2Fwww.google.com;end">📷 Ouvrir l’appli Google</a>
+  <div class="two" style="margin-top:8px"><a class="btn" style="display:block;text-align:center;text-decoration:none;background:var(--deep)" href="intent://lens#Intent;scheme=googleapp;package=com.google.android.googlequicksearchbox;end">Test Lens A</a><a class="btn" style="display:block;text-align:center;text-decoration:none;background:var(--deep)" href="googleapp://lens">Test Lens B</a></div>
+  <div class="sub" style="margin-top:8px">Autres chemins : l’icône Lens dans Google Photos, un appui long sur une image dans Chrome (« Recherche d’image avec Google Lens »), ou Circle to Search si ton téléphone l’a.</div></div>
   <div class="card"><b>🔎 Nom trouvé</b>
   <input id="lensName" placeholder="Nom de la plante (ex. Moringa)">
   <button class="btn" style="width:100%;margin-bottom:8px" onclick="navigator.clipboard.readText().then(x=>{$('#lensName').value=(x||'').trim().slice(0,80);$('#lensMsg').textContent=x?'':'Le presse-papiers est vide.'}).catch(()=>{$('#lensMsg').textContent='Collage refusé : appuie longuement dans le champ et choisis Coller.'})">📋 Coller le nom copié</button>
